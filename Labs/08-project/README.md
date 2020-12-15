@@ -91,7 +91,7 @@ We use several libraries given at class:
 -Timer 1 set with a 33 ms overflow (auqi me falta algo,preguntar a enol) (as used in Laboratories class)
 
 
-###ISR(TIMER1_OVF_vect)- INTERRUPTION N1
+### ISR(TIMER1_OVF_vect)- INTERRUPTION N1
 In this interruption ,the introduced code is read with the function 
 
 ```read_digits(&PINC).```
@@ -125,7 +125,7 @@ We want the door to be open 3 seconds. The maximum value of the timer is 16ms so
 We use TIMER 0
 
 ## Video/Animation
-Write your text here.
+![Video Link](videoapp.mp4)
 
 ## References
 1-Class lectures such as the PDFs lectures and notes.
