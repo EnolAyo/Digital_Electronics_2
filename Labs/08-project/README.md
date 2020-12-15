@@ -270,6 +270,18 @@ Other difficulty was the UART integration. We saw that it gets blocked because a
 We have tried to make the system the most robust that we could. For example, we do not accept a new code until the previous one is removed from the screen. We have tested the circuit writing many different codes fast and the results are always satisfactory. 
 It was an interesting project which help us to integrate al the laboratories classes together.
 
+This picture shows when the system is initialyzed
+![Hardware Description](Images/SIM1.png)
+
+This picture shows when the right code is inserted
+![Hardware Description](Images/SIM2.png)
+
+This picture shows when the wrong code is inserted
+![Hardware Description](Images/SIM3.png)
+
+
+
+
 ## References
 1-Class lectures such as the PDFs lectures and notes.
 
