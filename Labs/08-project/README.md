@@ -3,7 +3,7 @@
 
 Enol Ayo Sando and Marina Balbín Salas
 
-[Proyect Link](https://choosealicense.com/licenses/mit/)
+[Proyect Link](https://github.com/EnolAyo/Digital_Electronics_2/tree/master/Labs/08-project/project/project)
 
 ## Project objectives
 The aim of this proyect is to develop an application which could open a door through a 4x3 keyboard. A 4 digit-code will be inserted and will activate the relay that will open the door. The time to insert this code will be limited and there’ll be 3 different correct codes to archieve this.If the inserted code is correct a green led will be active,if is not,a red one.
