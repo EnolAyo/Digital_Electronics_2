@@ -267,6 +267,7 @@ ISR(TIMER0_OVF_vect){
 We are satisfied with our project results. All the goals were achieved.
 We struggle at the beginning trying to scan the keyboard matrix. We finally realized that we had to do this with a TIMER and an interruption, not in the main.c.
 Other difficulty was the UART integration. We saw that it gets blocked because all the data information did not fit in the transmission buffer. We increased the size of the transmission buffer in uart.h. 
+We have tried to make the system the most robust that we could. For example, we do not accept a new code until the previous one is removed from the screen. We have tested the circuit writing many different codes fast and the results are always satisfactory. 
 It was an interesting project which help us to integrate al the laboratories classes together.
 
 ## References
