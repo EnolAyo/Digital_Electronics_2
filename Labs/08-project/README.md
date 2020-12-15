@@ -57,7 +57,8 @@ if(GPIO_read(&PINC,3)==0){
 
 ```
 
-The key keyboard which corresponds to 1 is pressed, because we have a 0 at the input at the position [1,1]
+If the key which corresponds to 1 is pressed, since we would get as input a '0' in the PIN that corresponds with the firs row (PC3). Therefore we would run the code inside the "if". First we delay 10 ms to avoid debouncing and then we wait with a while loop until the key is not pressed anymore. Finally we return the value.
+If none key is pressed, this function would return a 'X' char.
 
 ### LECTURE LIBRARIES
 
