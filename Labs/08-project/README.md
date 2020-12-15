@@ -68,54 +68,159 @@ We use several libraries given at class:
    
    o 	uart.c – To send information about the state of the system though the uart port.
    
-   o	lcd.c- To show the digits thought the screen.
+   o	lcd.c- To show the digits on the screen.
    
-   o	timer.c – To control the times, such as the limit time to introduce the code or opening/closing time of the door.
+   o	timer.c – To scan the keypad and control the times, such as the limit time to introduce the code or opening/closing time of the door.
      
      
 
 ### MAIN.C
 
--Set of the input/outputs of the microcontroller:LEDs,UART,relay,keyboard and LCD
-
--Forever loop
+-Before main.c, we declare to global variables. One is open, and it indicates if the door is open with a '1'. The other variable is called wait_clear, and we use it in order not to accept a new code until the screen is cleared. Then inside main we set of the input/outputs of the microcontroller: LEDs, relay, keyboard. We also configure the LCD display, the UART and the timers. We set TIMER1 with a 33 ms overflow and TIMER0 with a 16 ms overflow. The interrupt subroutine of the first timer will be used for scanning the keypad, and TIMER0 interrupt will be used mainly to close the door and other things that we will explan later.
 ```
+//Global variables: used by both interrupt routines
+uint8_t open=0;//The door is open (1) or closed (0)
+uint8_t wait_clear=0;//Indicates if we have to wait until screen cleared
 
-
-
-
-
+int main(void)
+{	//Configure LEDs
+	GPIO_config_output(&DDRD,LED_GREEN);
+	GPIO_write_low(&PORTD,LED_GREEN); //ACTIVE HIGH
+	
+	GPIO_config_output(&DDRD,LED_RED);
+	GPIO_write_low(&PORTD,LED_RED); //ACTIVE HIGH
+	
+	//Configure LCD display
+	lcd_init(LCD_DISP_ON);
+	lcd_gotoxy(1,0);
+	lcd_puts("CODE: ");
+	
+	//Configure keypad ports
+	GPIO_config_output(&DDRC,0);
+	GPIO_config_output(&DDRC,1);
+	GPIO_config_output(&DDRC,2);
+	GPIO_config_input_pullup(&DDRC,3);
+	GPIO_config_input_pullup(&DDRC,4);
+	GPIO_config_input_pullup(&DDRC,5);
+	GPIO_config_input_pullup(&DDRC,6);
+	
+	//Configure relay
+	GPIO_config_output(&DDRB,3);
+	
+	//Timer1 for scanning keypad
+	TIM1_overflow_33ms();//scan every 33 ms
+	TIM1_overflow_interrupt_enable();
+	//Timer0 for closing door
+	TIM0_overflow_16ms();
+	
+	//Set interrupts
+	sei();
+	
+	//Configure UART
+	
+	uart_init(UART_BAUD_SELECT(9600,F_CPU))	;
+	uart_puts("System initialized\r\n");
+   
+    while (1);//forever loop
+    
+}
 
 
 ```
--Timer 1 set with a 33 ms overflow (auqi me falta algo,preguntar a enol) (as used in Laboratories class)
-
 
 ### ISR(TIMER1_OVF_vect)- INTERRUPTION N1
-In this interruption ,the introduced code is read with the function 
+This interruption routine is used to scan the keypad each 33 ms.
+The variables that we are going to use for this are the following: First we have 3 strings for the correct codes. Then we have 'cnt', which controls what is position of the digit that the user is introducing. We also have 'time_limit_cnt' and 'time_limit_on'. The first one counts the number of times that the routine was called and the second one indicates if the time limit for introducing the code is active. Finally we have the string 'code' for storing the code and the char 'readed' for reading the keypad.	
+```
+//Declaration of 3 correct codes
+	static char correct_code1[4]={'1','2','3','4'};
+	static char correct_code2[4]={'5','6','7','8'};
+	static char correct_code3[4]={'6','3','8','7'};
+	static uint8_t cnt=0;//Count the number of digits entered
+	static uint8_t time_limit_on=0;//Time limit goes on when first digit is pressed
+	static uint16_t time_limit_cnt=0;//Count the time to enter the code (16 s approx.)
+	static char code[4]={'X','X','X','X'};//Code entered
+	char readed=read_digits();//If none button is pressed the output is 'X'
+```
 
-```read_digits(&PINC).```
-
-Firstly, we have a control character ('X'). In the moment that character is different from X we will star to read the code.
+When we have readed the keypad, we only have to store the char if it is not 'X' (code for none button pressed) and if the screen is cleared from the previous code (wait_clear).
+If cnt==1 that means that is the first digit of the code, so we activate the time limit and set time_limit_cnt to zero. IF cnt==4 the code has been completely introduced so that we can turn off the time limit and set wait_clear to '1'. Until this global variable is '0' and the screen cleared, we will not accept another code. Finally we enable TIMER0 interrupt.
+Then we have to check if the code is correct with the 'code_analyzer' function. If the code is correct, the door is opened and the green LED turns on until it is closed. The global variable open is set to '1'. On the other hand, if the code is incorrect, we set open as '0' and turn on the red LED.
 
 ```
-char readed=read_digits();//If none button is pressed the output is 'X'
-	if((readed!='X')&&(wait_clear==0)){//We accept the digit only if the screen is cleared from the previous code
-
-```
-
-In the moment that a digit is read, time limit will star to increase. It starts and is switch on also(time_limit=0  time_limit_on=1). We defined a time limit of 250 cycles of 32 ms and we add 1 to time_limit variable. When we archive this condition and also we have the time_limit on,we will reboot our time_limit variable to 0 again because time is over.
-
-
-```
-time_limit++;
-	if((time_limit==250)&&(time_limit_on==1)){
-		time_limit=0;
-		cnt=0;
-		lcd_gotoxy(1,0);
-		lcd_puts("    ");
+if((readed!='X')&&(wait_clear==0)){//We accept the digit only if the screen is cleared from the previous code
+		switch(cnt){
+			case 0:
+				uart_puts("First digit inserted\r\n");
+				break;
+			case 1:
+				uart_puts("Second digit inserted\r\n");
+				break;
+			case 2:
+				uart_puts("Third digit inserted\r\n");
+				break;
+			case 3:
+				uart_puts("Fourth digit inserted\r\n");
+				break;
+			default:
+				break;
+		}
+		
+		code[cnt]=readed;
+		lcd_gotoxy(cnt+7,0);
+		lcd_putc(readed);
+		cnt++;
+		if(cnt==1){
+			time_limit_cnt=0;//Set time 
+			time_limit_on=1;//Activation of time limit
+		}
+		if(cnt==4){
+			cnt=0;
+			uart_puts("The code inserted is: ");
+			uart_putc(code[0]);uart_putc(code[1]);uart_putc(code[2]);uart_putc(code[3]);
+			uart_puts("\r\n");
+			wait_clear=1;//Wait until the screen is cleared
+			time_limit_on=0;//Time limit off
+			TIM0_overflow_interrupt_enable();//Start counting to close the door
+			if(code_analyzer(code,correct_code1,correct_code2,correct_code3)==1){
+				uart_puts("The code is correct. Door open");
+				open=1;//door open
+				GPIO_write_high(&PORTB,3);//open door
+				GPIO_write_high(&PORTD,LED_GREEN);
+				GPIO_write_low(&PORTD,LED_RED);
+				lcd_gotoxy(1,1);
+				lcd_puts("CORRECT CODE");
+				
+				
+			}
+			else
+			{	
+				uart_puts("The code is wrong.");
+				open=0;//door closed
+				lcd_gotoxy(1,1);
+				lcd_puts("WRONG CODE");
+				GPIO_write_high(&PORTD,LED_RED);
+				GPIO_write_low(&PORTD,LED_GREEN);
+			}
+			uart_puts("\r\n");
+		}
 	}
-    
+
+```
+
+In the moment that the first digit is read, time limit to introduce the code will start to increase on each interrupt routine execution. We defined a time limit of 500 cycles of 32 ms, which is around 16 seconds. When time_limit_cnt==500 and time_limit_on==1 the time to introduce the code is over, so we clear the code from the screen and set cnt to '0' so that the next digit readed will be the first of the code.
+
+
+```
+time_limit_cnt++;
+	if((time_limit_cnt==500)&&(time_limit_on==1)){
+		time_limit_cnt=0;
+		cnt=0;
+		lcd_gotoxy(7,0);
+		lcd_puts("    ");
+		uart_puts("Time for introducing code exceeded. \r\n");
+	}
+}
 ```
 In the moment that we have the 4 digits of our code in the suitable time, the limit time will be switch off. (time_limit_on=0)
 
