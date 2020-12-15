@@ -222,12 +222,39 @@ time_limit_cnt++;
 	}
 }
 ```
-In the moment that we have the 4 digits of our code in the suitable time, the limit time will be switch off. (time_limit_on=0)
+
 
 ### ISR(TIMER0_OVF_vect)
-0,0016sx3s=188cycles
-We want the door to be open 3 seconds. The maximum value of the timer is 16ms so to get our goal we need to multiplie and we will get 188 cycles.
-We use TIMER 0
+This interruption subroutine is mainly used to close the door, but it also has other functions. Since the door must remain open for 3 seconds and the overflow is 16 ms, we need that the routine is executed 188 times before doing anything. We count this with 'cnt', and we put it to 0 when its value is 188.
+Then, if the global variable open is equal to '1', we have to close the door and turn off the green led. 
+
+```
+ISR(TIMER0_OVF_vect){
+	//Interrupt used to close the relay
+	static uint8_t cnt=0;
+	if(cnt==188){
+		cnt=0;
+		if(open==1){
+			GPIO_write_low(&PORTB,3);//close door
+			GPIO_write_low(&PORTD,LED_GREEN);
+			open=0;
+			uart_puts("Closing door...\r\n");
+		}
+		else{//if the door is closed we clear the screen for a new code
+			GPIO_write_low(&PORTD,LED_RED);
+		}
+		TIM0_overflow_interrupt_disable();
+		lcd_gotoxy(7,0);
+		lcd_puts("    ");//Clear screen
+		lcd_gotoxy(1,1);
+		lcd_puts("            ");
+		wait_clear=0;//the screen is cleared now
+			
+	}
+	cnt++;
+	
+}
+```
 
 ## Video/Animation
 ![Video Link](videoapp.mp4)
