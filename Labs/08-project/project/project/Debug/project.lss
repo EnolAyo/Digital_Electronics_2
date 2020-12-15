@@ -19,15 +19,15 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, READONLY, DEBUGGING
   7 .debug_abbrev 00000c20  00000000  00000000  000030ca  2**0
                   CONTENTS, READONLY, DEBUGGING
-  8 .debug_line   00001031  00000000  00000000  00003cea  2**0
+  8 .debug_line   0000102e  00000000  00000000  00003cea  2**0
                   CONTENTS, READONLY, DEBUGGING
-  9 .debug_frame  000003a0  00000000  00000000  00004d1c  2**2
+  9 .debug_frame  000003a0  00000000  00000000  00004d18  2**2
                   CONTENTS, READONLY, DEBUGGING
- 10 .debug_str    000006ce  00000000  00000000  000050bc  2**0
+ 10 .debug_str    000006ce  00000000  00000000  000050b8  2**0
                   CONTENTS, READONLY, DEBUGGING
- 11 .debug_loc    00001055  00000000  00000000  0000578a  2**0
+ 11 .debug_loc    00001055  00000000  00000000  00005786  2**0
                   CONTENTS, READONLY, DEBUGGING
- 12 .debug_ranges 00000158  00000000  00000000  000067df  2**0
+ 12 .debug_ranges 00000158  00000000  00000000  000067db  2**0
                   CONTENTS, READONLY, DEBUGGING
 
 Disassembly of section .text:
@@ -194,10 +194,10 @@ uint8_t GPIO_read(volatile uint8_t *reg_name, uint8_t pin_num){
  126:	08 95       	ret
 
 00000128 <code_analyzer>:
- */ 
-#include <avr/sfr_defs.h>
-#include "gpio.h"
-#include <avr/delay.h>
+ * Purpose:  checks if the code introduced matches one of the correct ones
+ * Input:    the code introduced and the correct ones
+ * Returns:  1 if the code is correct, 0 if not
+ **************************************************************************/
 uint8_t code_analyzer(char code[4],char correct_code1[4],char correct_code2[4],char correct_code3[4])
 {
  128:	ef 92       	push	r14
@@ -221,15 +221,15 @@ uint8_t code_analyzer(char code[4],char correct_code1[4],char correct_code2[4],c
 		uint8_t cnt2=0;
 		uint8_t cnt3=0;
  148:	40 e0       	ldi	r20, 0x00	; 0
-#include <avr/delay.h>
+ **************************************************************************/
 uint8_t code_analyzer(char code[4],char correct_code1[4],char correct_code2[4],char correct_code3[4])
 {
 	
 		uint8_t cnt1=0;
 		uint8_t cnt2=0;
  14a:	50 e0       	ldi	r21, 0x00	; 0
-#include "gpio.h"
-#include <avr/delay.h>
+ * Returns:  1 if the code is correct, 0 if not
+ **************************************************************************/
 uint8_t code_analyzer(char code[4],char correct_code1[4],char correct_code2[4],char correct_code3[4])
 {
 	
@@ -276,7 +276,7 @@ uint8_t code_analyzer(char code[4],char correct_code1[4],char correct_code2[4],c
  170:	e2 17       	cp	r30, r18
  172:	f3 07       	cpc	r31, r19
  174:	61 f7       	brne	.-40     	; 0x14e <code_analyzer+0x26>
-		if((cnt1==4)|(cnt2==4)|(cnt3==4))
+		if((cnt1==4)|(cnt2==4)|(cnt3==4))//the code is correct if matches one of the correct codes
 		{
 			equal=1;//CORRECT CODE
 		}
@@ -308,7 +308,9 @@ uint8_t code_analyzer(char code[4],char correct_code1[4],char correct_code2[4],c
  19e:	08 95       	ret
 
 000001a0 <read_digits>:
-
+ * Input:    none
+ * Returns:  the button pressed or 'X' if none button is pressed
+ **************************************************************************/
 char read_digits(void){
 	
 	GPIO_write_low(&PORTC,0);
