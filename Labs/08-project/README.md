@@ -62,51 +62,45 @@ If none key is pressed, this function would return a 'X' char.
 
 ### LECTURE LIBRARIES
 
-We use several libraries used in class:
-o	gpio.c -To define the inputs and the outputs of the microcontroller
-o	uart.c – To send information about the state of the system though the uart port
-o	lcd.c- To show the digits thought the screen.
-o	timer.c – To control the times, such as the limit time to introduce the code or opening/closing time of the door.
+We use several libraries given at class:
+
+   o    gpio.c -To define the inputs and the outputs of the microcontroller
+   
+   o 	uart.c – To send information about the state of the system though the uart port.
+   
+   o	lcd.c- To show the digits thought the screen.
+   
+   o	timer.c – To control the times, such as the limit time to introduce the code or opening/closing time of the door.
+     
+     
 
 ### MAIN.C
 
--Set of the input/outputs of the microcontroller. We use PORTC for the keyboard and PORTB for the relay
-PONGO AQUI TODO EL CODIGO??
+-Set of the input/outputs of the microcontroller:LEDs,UART,relay,keyboard and LCD
+
+-Forever loop
+```
+
+
+
+
+
+
+
+```
 -Timer 1 set with a 33 ms overflow (auqi me falta algo,preguntar a enol) (as used in Laboratories class)
--Definition of the valid codes (3 in our case)
 
--ISR(TIMER1_OVF_vect)- INTERRUPTION N1
-In this interruption ,the introduced code is readed with the function 
 
+###ISR(TIMER1_OVF_vect)- INTERRUPTION N1
+In this interruption ,the introduced code is read with the function 
 
 ```read_digits(&PINC).```
 
-Firstly, we have a control character (control='X'). In the moment that character is different from X we will star to read the code.
+Firstly, we have a control character ('X'). In the moment that character is different from X we will star to read the code.
 
 ```
-static uint8_t cnt=0;
-	static uint8_t time_limit_on=0;
-	static uint16_t time_limit=0;
-	char code[4];
-	char readed=read_digits(&PINC);
-	if(readed!='X'){
-		code[cnt]=readed;
-		lcd_gotoxy(cnt+1,0);
-		lcd_putc(readed);
-		cnt++;
-		
-		if(cnt==1){
-			time_limit=0;
-			time_limit_on=1;
-		}
-		if(cnt==4){
-			time_limit_on=0;
-		}
-	}
-	
-	if(cnt==4){ 
-		cnt=0;
-	}
+char readed=read_digits();//If none button is pressed the output is 'X'
+	if((readed!='X')&&(wait_clear==0)){//We accept the digit only if the screen is cleared from the previous code
 
 ```
 
@@ -125,7 +119,7 @@ time_limit++;
 ```
 In the moment that we have the 4 digits of our code in the suitable time, the limit time will be switch off. (time_limit_on=0)
 
-### SECOND INTERRUPTION
+### ISR(TIMER0_OVF_vect)
 0,0016sx3s=188cycles
 We want the door to be open 3 seconds. The maximum value of the timer is 16ms so to get our goal we need to multiplie and we will get 188 cycles.
 We use TIMER 0
@@ -134,10 +128,10 @@ We use TIMER 0
 Write your text here.
 
 ## References
-1-Class lectures such as the PP’lecture and notes.
+1-Class lectures such as the PDFs lectures and notes.
 
-2-https://aticleworld.com/matrix-keypad-interfacing-with-pic-microcontroller/
+2-[https://aticleworld.com/matrix-keypad-interfacing-with-pic-microcontroller/]
 
-3- http://simulide.blogspot.com/p/blog-page_15.html
+3- [http://simulide.blogspot.com/p/blog-page_15.html]
 
-4-https://electrosome.com/interfacing-relay-with-pic-microcontroller/#:~:text=A%20relay%20can%20be%20easily,current%20flows%20through%20the%20relay.
+4-[https://electrosome.com/interfacing-relay-with-pic-microcontroller/#:~:text=A%20relay%20can%20be%20easily,current%20flows%20through%20the%20relay.]
