@@ -9,7 +9,7 @@ Enol Ayo Sando and Marina Balbín Salas
 The aim of this proyect is to develop an application which opens a door through a 4x3 keyboard. A 4 digit-code will be inserted and will activate the relay that will open the door. The time to insert this code will be limited and there will be 3 different correct codes to achieve this.There will be a green led illuminated while the door is open and a red led illuminated when the wrong code is inserted. Important information about the state of the system will be sent with UART.
 
 ## Hardware description
-![Proyect Link](Images/Imagen2.jpg)
+![Hardware Description](Images/Imagen2.jpg)
 
 -PIN PC0 TO PC5 ARE USED TO CONTROL THE KEYBOARD (PC0 to PC2 used as outputs/PC3 to PC6 as inputs). The keypad works as a matrix of switches. When one key is pressed its switch is closed, and therefore corresponding row pin and column key are connected. 
 
@@ -20,6 +20,9 @@ The aim of this proyect is to develop an application which opens a door through 
 -PIN PD4,PD5,PD6 PD7,PB0 and PB1 are used to control the LCD display.It will be used for showing the code and also to show if the code is correct or not. 
 
 ## Code description and simulations
+### Flowchart
+![Proyect Link](Images/flowchart.jpg)
+
 ### KEYPAD.C
 In this library we have define the following functions:
 ```
@@ -258,13 +261,19 @@ ISR(TIMER0_OVF_vect){
 ```
 
 ## Video/Animation
-[Video Link]https://www.youtube.com/watch?v=WDP6Cb1VhOc&feature=youtu.be
+[Video Link](https://www.youtube.com/watch?v=WDP6Cb1VhOc&feature=youtu.be)
+
+## Discussion of results
+We are satisfied with our project results. All the goals were achieved.
+We struggle at the beginning trying to scan the keyboard matrix. We finally realized that we had to do this with a TIMER and an interruption, not in the main.c.
+Other difficulty was the UART integration. We saw that it gets blocked because all the data information did not fit in the transmission buffer. We increased the size of the transmission buffer in uart.h. 
+It was an interesting project which help us to integrate al the laboratories classes together.
 
 ## References
 1-Class lectures such as the PDFs lectures and notes.
 
-2-[https://aticleworld.com/matrix-keypad-interfacing-with-pic-microcontroller/]
+2-(https://aticleworld.com/matrix-keypad-interfacing-with-pic-microcontroller/)
 
-3- [http://simulide.blogspot.com/p/blog-page_15.html]
+3-(http://simulide.blogspot.com/p/blog-page_15.html)
 
-4-[https://electrosome.com/interfacing-relay-with-pic-microcontroller/#:~:text=A%20relay%20can%20be%20easily,current%20flows%20through%20the%20relay.]
+4-(https://electrosome.com/interfacing-relay-with-pic-microcontroller/#:~:text=A%20relay%20can%20be%20easily,current%20flows%20through%20the%20relay.)
