@@ -68,8 +68,8 @@ ISR(TIMER1_OVF_vect){
 	static uint8_t time_limit_on=0;//Time limit goes on when first digit is pressed
 	static uint16_t time_limit_cnt=0;//Count the time to enter the code (16 s approx.)
 	static char code[4]={'X','X','X','X'};//Code entered
-	
 	char readed=read_digits();//If none button is pressed the output is 'X'
+	
 	if((readed!='X')&&(wait_clear==0)){//We accept the digit only if the screen is cleared from the previous code
 		switch(cnt){
 			case 0:
@@ -97,6 +97,7 @@ ISR(TIMER1_OVF_vect){
 			time_limit_on=1;//Activation of time limit
 		}
 		if(cnt==4){
+			cnt=0;
 			uart_puts("The code inserted is: ");
 			uart_putc(code[0]);uart_putc(code[1]);uart_putc(code[2]);uart_putc(code[3]);
 			uart_puts("\r\n");
@@ -127,9 +128,6 @@ ISR(TIMER1_OVF_vect){
 		}
 	}
 	
-	if(cnt==4){ 
-		cnt=0;
-	}
 	time_limit_cnt++;
 	if((time_limit_cnt==500)&&(time_limit_on==1)){
 		time_limit_cnt=0;
@@ -143,26 +141,21 @@ ISR(TIMER0_OVF_vect){
 	//Interrupt used to close the relay
 	static uint8_t cnt=0;
 	if(cnt==188){
+		cnt=0;
 		if(open==1){
-			cnt=0;
 			GPIO_write_low(&PORTB,3);//close door
-			TIM0_overflow_interrupt_disable();
 			GPIO_write_low(&PORTD,LED_GREEN);
-			lcd_gotoxy(7,0);
-			lcd_puts("    ");//Clear screen
-			lcd_gotoxy(1,1);
-			lcd_puts("            ");
 			open=0;
 			uart_puts("Closing door...\r\n");
 		}
 		else{//if the door is closed we clear the screen for a new code
-			TIM0_overflow_interrupt_disable();
-			lcd_gotoxy(1,1);
-			lcd_puts("            ");//
-			lcd_gotoxy(7,0);
-			lcd_puts("    ");
 			GPIO_write_low(&PORTD,LED_RED);
 		}
+		TIM0_overflow_interrupt_disable();
+		lcd_gotoxy(7,0);
+		lcd_puts("    ");//Clear screen
+		lcd_gotoxy(1,1);
+		lcd_puts("            ");
 		wait_clear=0;//the screen is cleared now
 			
 	}
