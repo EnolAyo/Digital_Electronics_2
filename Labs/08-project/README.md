@@ -226,7 +226,8 @@ time_limit_cnt++;
 
 ### ISR(TIMER0_OVF_vect)
 This interruption subroutine is mainly used to close the door, but it also has other functions. Since the door must remain open for 3 seconds and the overflow is 16 ms, we need that the routine is executed 188 times before doing anything. We count this with 'cnt', and we put it to 0 when its value is 188.
-Then, if the global variable open is equal to '1', we have to close the door and turn off the green led. 
+Then, if the global variable open is equal to '1', we have to close the door and turn off the green led. We set open to 0. If open was equal to 0, we only turn off the red LED.
+Finally, we clear the screen, disable the interrupt and set wait_clear to 0, so that a new code could be introduced.
 
 ```
 ISR(TIMER0_OVF_vect){
