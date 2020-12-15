@@ -21,7 +21,7 @@ The aim of this proyect is to develop an application which opens a door through 
 
 ## Code description and simulations
 ### Flowchart
-![Proyect Link](Images/flowchart.jpg)
+![Flowchart](Images/flowchart.jpg)
 
 ### KEYPAD.C
 In this library we have define the following functions:
